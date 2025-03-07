@@ -1,16 +1,14 @@
 import React from "react";
-import { createStackNavigator, StackNavigationProp } from "@react-navigation/stack";
+import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
-import HomeScreen from "../styles/HomeScreen";
+import HomeScreen from "../screens/HomeScreen"; // Fixed import path
 import CartScreen from "../screens/CartScreen";
 import CheckoutScreen from "../screens/CheckoutScreen";
-import { RouteProp } from "@react-navigation/native";
-import { Product } from "../types"; // Ensure Product type is imported
 
 // Define RootStackParamList correctly
-type RootStackParamList = {
+export type RootStackParamList = {
   Home: undefined;
-  Cart: { cartItems: Product[]; updateCart: (cart: Product[]) => void }; // Fixed
+  Cart: undefined; // No need to pass cart items as parameters
   Checkout: undefined;
 };
 
@@ -22,11 +20,7 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen
-          name="Cart"
-          component={CartScreen}
-          initialParams={{ cartItems: [], updateCart: () => {} }} // Fixed
-        />
+        <Stack.Screen name="Cart" component={CartScreen} />
         <Stack.Screen name="Checkout" component={CheckoutScreen} />
       </Stack.Navigator>
     </NavigationContainer>
@@ -34,5 +28,12 @@ const AppNavigator = () => {
 };
 
 export default AppNavigator;
-export type NavigationProps = StackNavigationProp<RootStackParamList>;
-export type RouteProps<T extends keyof RootStackParamList> = RouteProp<RootStackParamList, T>;
+
+// types.ts
+export type Product = {
+  id: string;
+  name: string;
+  price: number;
+  image: string | number;
+  quantity: number;
+};

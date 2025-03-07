@@ -1,6 +1,6 @@
 import React from "react";
 import { CartProvider } from "./assets/src/context/CartContext";
-import AppNavigator from "./assets/src/navigation/AppNavigator"; // Fix import
+import AppNavigator from "./assets/src/navigation/AppNavigator";
 
 const App = () => {
   return (

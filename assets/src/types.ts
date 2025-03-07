@@ -1,19 +1,15 @@
-export type Product = {
-    id: string;
-    name: string;
-    price: number;
-    image: string | number; 
-    quantity: number; 
-  };
-  
+import { ImageSourcePropType } from "react-native";
 
-  export type RootStackParamList = {
-    Home: undefined;
-    Cart: {
-      cartItems: Product[];
-      updateCart: (cart: Product[]) => void;
-    };
-    Checkout: undefined;
-  };
-  
-  
+export type Product = {
+  id: string;
+  name: string;
+  price: number;
+  image: ImageSourcePropType; 
+  quantity: number;
+};
+
+export type RootStackParamList = {
+  Home: undefined;
+  Cart: undefined;
+  Checkout: undefined;
+};

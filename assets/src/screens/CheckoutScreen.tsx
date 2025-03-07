@@ -1,20 +1,53 @@
 import React from "react";
-import { View, Text, Button } from "react-native";
+import { View, Text, Alert, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { styles } from "../styles/styles";
+import { RootStackParamList } from "../navigation/AppNavigator";
 import { useCart } from "../context/CartContext";
 
-const CheckoutScreen = () => {
-  const { cart, clearCart } = useCart();
+type NavigationProp = StackNavigationProp<RootStackParamList, "Checkout">;
 
-  // Calculate total sum
-  const totalSum = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+const CheckoutScreen = () => {
+  const navigation = useNavigation<NavigationProp>();
+  const { cart, clearCart, getTotalPrice } = useCart();
+
+  const handleCheckout = () => {
+    Alert.alert("Checkout Successful", "Thank you for your purchase!", [
+      {
+        text: "OK",
+        onPress: () => {
+          clearCart();
+          navigation.navigate("Home");
+        },
+      },
+    ]);
+  };
 
   return (
-    <View>
-      <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>
-        Checkout
-      </Text>
-      <Text>Total: ${totalSum.toFixed(2)}</Text>
-      <Button title="Complete Purchase" onPress={clearCart} />
+    <View style={styles.container}>
+      <Text style={styles.title}>Checkout</Text>
+
+      {cart.map((item) => (
+        <View key={item.id} style={styles.itemContainer}>
+          <Text style={styles.itemText}>
+            {item.name} (x{item.quantity})
+          </Text>
+          <Text style={styles.priceText}>
+            ${(item.price * item.quantity).toFixed(2)}
+          </Text>
+        </View>
+      ))}
+
+      <View style={styles.cartTotalContainer}>
+        <Text style={styles.cartTotalText}>
+          Total: ${getTotalPrice().toFixed(2)}
+        </Text>
+      </View>
+
+      <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
+        <Text style={styles.checkoutButtonText}>Checkout</Text>
+      </TouchableOpacity>
     </View>
   );
 };

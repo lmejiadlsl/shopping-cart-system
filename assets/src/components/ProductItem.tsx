@@ -1,14 +1,14 @@
 import { View, Text, Image, Button } from "react-native";
 import { Product } from "../types";
 import { styles } from "../styles/styles";
-import { useCart } from "../context/CartContext"; // Import Cart Context
+import { useCart } from "../context/CartContext";
 
 type Props = {
   product: Product;
 };
 
 const ProductItem = ({ product }: Props) => {
-  const { addToCart } = useCart(); // Use addToCart function
+  const { addToCart } = useCart();
 
   return (
     <View style={styles.productContainer}>
@@ -19,7 +19,7 @@ const ProductItem = ({ product }: Props) => {
       <Text style={styles.productText}>
         {product.name} - ${product.price}
       </Text>
-      <Button title="Add to Cart" onPress={() => addToCart({ ...product, quantity: 1 })} />
+      <Button title="Add to Cart" onPress={() => addToCart(product)} />
     </View>
   );
 };

@@ -1,31 +1,17 @@
-import React, { useState } from "react";
-import { View, Text, Button, FlatList, Image } from "react-native";
+import React from "react";
+import { View, Text, FlatList, Image, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { styles } from "../styles/styles";
-import { Product, RootStackParamList } from "../types";
+import { Product } from "../types";
+import { RootStackParamList } from "../navigation/AppNavigator";
+import { useCart } from "../context/CartContext";
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 
 const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp>();
-
-  // Cart state
-  const [cartItems, setCartItems] = useState<Product[]>([]);
-
-  // Function to add items to the cart
-  const addToCart = (product: Product) => {
-    setCartItems((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
-      if (existingItem) {
-        return prevCart.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      } else {
-        return [...prevCart, { ...product, quantity: 1 }];
-      }
-    });
-  };
+  const { addToCart, cart } = useCart();
 
   // Products list
   const products: Product[] = [
@@ -42,17 +28,26 @@ const HomeScreen = () => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.productContainer}>
-            <Image source={item.image} style={styles.productImage} />
+            <Image source={item.image} style={styles.image} />
             <Text style={styles.productName}>{item.name}</Text>
             <Text style={styles.productPrice}>${item.price}</Text>
-            <Button title="Add to Cart" onPress={() => addToCart(item)} />
+
+            <TouchableOpacity 
+              style={styles.addToCartButton} 
+              onPress={() => addToCart(item)}
+            >
+              <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+            </TouchableOpacity>
           </View>
         )}
       />
-      <Button
-        title={`Go to Cart (${cartItems.length})`}
-        onPress={() => navigation.navigate("Cart", { cartItems })}
-      />
+
+      <TouchableOpacity 
+        style={styles.cartButton} 
+        onPress={() => navigation.navigate("Cart")}
+      >
+        <Text style={styles.cartButtonText}>Go to Cart ({cart.length})</Text>
+      </TouchableOpacity>
     </View>
   );
 };
