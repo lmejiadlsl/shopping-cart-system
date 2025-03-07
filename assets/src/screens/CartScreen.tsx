@@ -1,43 +1,78 @@
 import React from "react";
-import { View, Text, FlatList, Button, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { useCart } from "../context/CartContext";
-import { NavigationProps } from "../navigation/AppNavigator";
+import { View, Text, FlatList, TouchableOpacity } from "react-native";
+import { useNavigation, RouteProp } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { styles } from "../styles/styles";
+import { Product, RootStackParamList } from "../types";
 
-const CartScreen = () => {
-  const navigation = useNavigation<NavigationProps>();
-  const { cart, updateQuantity } = useCart();
+// Define navigation and route types
+type NavigationProp = StackNavigationProp<RootStackParamList, "Cart">;
+type RoutePropType = RouteProp<RootStackParamList, "Cart">;
+
+// Explicitly define props type
+interface CartScreenProps {
+  route: RoutePropType;
+}
+
+const CartScreen: React.FC<CartScreenProps> = ({ route }) => {
+  const navigation = useNavigation<NavigationProp>();
+
+  // Extract cartItems and updateCart from route.params with proper typing
+  const { cartItems, updateCart } = route.params;
+
+  const increaseQuantity = (id: string) => {
+    const updatedCart = cartItems.map((item: Product) =>
+      item.id === id ? { ...item, quantity: (item.quantity ?? 1) + 1 } : item
+    );
+    updateCart(updatedCart);
+  };
+
+  const decreaseQuantity = (id: string) => {
+    const updatedCart = cartItems
+      .map((item: Product) =>
+        item.id === id && item.quantity > 1
+          ? { ...item, quantity: item.quantity - 1 }
+          : item
+      )
+      .filter((item) => item.quantity > 0);
+    updateCart(updatedCart);
+  };
 
   return (
     <View style={styles.container}>
-      {cart.length === 0 ? (
-        <Text>Your cart is empty.</Text>
+      <Text style={styles.title}>Cart</Text>
+      {cartItems.length === 0 ? (
+        <Text style={styles.emptyCartText}>Your cart is empty.</Text>
       ) : (
         <FlatList
-          data={cart}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.item}>
-              <Text>
-                {item.name} - ${item.price} x {item.quantity}
+          data={cartItems}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }: { item: Product }) => (
+            <View style={styles.cartItem}>
+              <Text style={styles.productText}>
+                {item.name} - ${item.price * (item.quantity ?? 1)}
               </Text>
-              <View style={styles.buttons}>
-                <Button title="+" onPress={() => updateQuantity(item.id, "increase")} />
-                <Button title="-" onPress={() => updateQuantity(item.id, "decrease")} />
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  onPress={() => decreaseQuantity(item.id)}
+                  style={styles.button}
+                >
+                  <Text style={styles.buttonText}>-</Text>
+                </TouchableOpacity>
+                <Text style={styles.productText}>{item.quantity ?? 1}</Text>
+                <TouchableOpacity
+                  onPress={() => increaseQuantity(item.id)}
+                  style={styles.button}
+                >
+                  <Text style={styles.buttonText}>+</Text>
+                </TouchableOpacity>
               </View>
             </View>
           )}
         />
       )}
-      <Button title="Checkout" onPress={() => navigation.navigate("Checkout")} />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 10 },
-  item: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10 },
-  buttons: { flexDirection: "row", gap: 10 },
-});
 
 export default CartScreen;

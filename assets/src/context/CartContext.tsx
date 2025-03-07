@@ -1,25 +1,30 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
-interface Product {
-  id: number;
+// Define the type for each cart item
+interface CartItem {
+  id: string;
   name: string;
   price: number;
   quantity: number;
 }
 
+// Define the type for the Cart Context
 interface CartContextType {
-  cart: Product[];
-  addToCart: (product: Product) => void;
-  updateQuantity: (id: number, type: "increase" | "decrease") => void;
+  cart: CartItem[];
+  addToCart: (product: CartItem) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
 }
 
+// Create Context with an undefined initial value
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [cart, setCart] = useState<Product[]>([]);
+// CartProvider component that will wrap the app
+export const CartProvider = ({ children }: { children: ReactNode }) => {
+  const [cart, setCart] = useState<CartItem[]>([]);
 
-  const addToCart = (product: Product) => {
+  // Function to add a new item to the cart
+  const addToCart = (product: CartItem) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.id);
       if (existingItem) {
@@ -32,18 +37,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
-  const updateQuantity = (id: number, type: "increase" | "decrease") => {
+  // Function to update the quantity of an item in the cart
+  const updateQuantity = (id: string, quantity: number) => {
     setCart((prevCart) =>
-      prevCart
-        .map((item) =>
-          item.id === id
-            ? { ...item, quantity: type === "increase" ? item.quantity + 1 : item.quantity - 1 }
-            : item
-        )
-        .filter((item) => item.quantity > 0)
+      prevCart.map((item) =>
+        item.id === id ? { ...item, quantity } : item
+      )
     );
   };
 
+  // Function to clear the entire cart
   const clearCart = () => setCart([]);
 
   return (
@@ -53,6 +56,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
+// Custom hook to use the cart context
 export const useCart = () => {
   const context = useContext(CartContext);
   if (!context) {
